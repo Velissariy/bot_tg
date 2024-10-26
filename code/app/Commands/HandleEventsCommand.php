@@ -3,68 +3,53 @@
 namespace App\Commands;
 
 use App\Application;
+
 use App\Database\SQLite;
+
 use App\EventSender\EventSender;
+
 use App\Models\Event;
+use App\Telegram\TelegramApiImp;
 
-class HandleEventsCommand extends Command {
+//use App\Models\EventDto;
 
-  protected Application $app;
+class HandleEventsCommand extends Command
+{
+    protected Application $app;
 
-  public function __construct(Application $app) {
-    $this->app = $app;
-  }
-
-  public function run(array $options = []): void {
-    $event = new Event(new SQLite($this->app));
-    $events = $event->select();
-    $eventSender = new EventSender();
-    foreach ($events as $event) {
-      if ($this->shouldEventBeRan($event)) {
-        $eventSender->sendMessage($this->app->env('TELEGRAM_TOKEN'), $event['receiver_id'], $event['text']);
-      }
-    }
-  }
-
-  private function shouldEventBeRan($event): bool {
-    $currentMinute = (int)date("i");
-    $currentHour = (int)date("H");
-    $currentDay = (int)date("d");
-    $currentMonth = (int)date("m");
-    $currentWeekday = (int)date("w");
-
-    return $this->matchesCronPart($event['minute'], $currentMinute) &&
-      $this->matchesCronPart($event['hour'], $currentHour) &&
-      $this->matchesCronPart($event['day'], $currentDay) &&
-      $this->matchesCronPart($event['month'], $currentMonth) &&
-      $this->matchesCronPart($event['day_of_week'], $currentWeekday);
-  }
-
-  private function matchesCronPart($cronPart, $currentValue): bool {
-    // Если это звездочка, то любое значение подходит
-    if ($cronPart === '*') {
-      return true;
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
     }
 
-    // Если это диапазон (например, 1-5)
-    if (strpos($cronPart, '-') !== false) {
-      [$start, $end] = explode('-', $cronPart);
-      return $currentValue >= (int)$start && $currentValue <= (int)$end;
+    public function run(array $options = []): void
+    {
+        $event = new Event(new SQLite($this->app));
+
+        $events = $event->select();
+
+        $eventSender = new EventSender(new TelegramApiImp($this->app->env('TELEGRAM_TOKEN')));
+
+        foreach ($events as $event) {
+            if ($this->shouldEventBeRan($event)) {
+                $eventSender->sendMessage($event['receiver_id'], $event['text']);
+            }
+        }
     }
 
-    // Если это шаг (например, */5)
-    if (strpos($cronPart, '*/') !== false) {
-      $step = (int)substr($cronPart, 2);
-      return $currentValue % $step === 0;
+    public function shouldEventBeRan($event): bool
+    {
+        $currentMinute = date("i");
+        $currentHour = date("H");
+        $currentDay = date("d");
+        $currentMonth = date("m");
+        $currentWeekday = date("w");
+
+        return ($event['minute'] === (int)$currentMinute &&
+            $event['hour'] === (int)$currentHour &&
+            $event['day'] === (int)$currentDay &&
+            $event['month'] === (int)$currentMonth &&
+            $event['day_of_week'] === (int)$currentWeekday);
     }
 
-    // Если это список значений через запятую (например, 1,2,3)
-    if (strpos($cronPart, ',') !== false) {
-      $values = explode(',', $cronPart);
-      return in_array((string)$currentValue, $values, true);
-    }
-
-    // Если это конкретное значение
-    return (int)$cronPart === $currentValue;
-  }
 }
