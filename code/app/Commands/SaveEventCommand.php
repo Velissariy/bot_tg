@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Actions\EventSaver;
 use App\Application;
 use App\Database\SQLite;
 use App\Models\Event;
@@ -63,7 +64,7 @@ class SaveEventCommand extends Command {
     return getopt($shortopts, $longopts);
   }
 
-  private function isNeedHelp(array $options): bool {
+  public function isNeedHelp(array $options): bool {
     return !isset($options['name']) ||
       !isset($options['text']) ||
       !isset($options['receiver']) ||
@@ -86,18 +87,12 @@ class SaveEventCommand extends Command {
 
   private function getCronValues(string $cronString): array {
     $cronValues = explode(" ", $cronString);
-//    $cronValues = array_map(function ($item) {
-//      return $item === "*" ? null : $item;
-//    }, $cronValues);
-
     return $cronValues;
   }
 
   private function saveEvent(array $params): void {
     $event = new Event(new SQLite($this->app));
-    $event->insert(
-      implode(', ', array_keys($params)),
-      array_values($params)
-    );
+    $eventSaver = new EventSaver($event);
+    $eventSaver->handle($params);
   }
 }
