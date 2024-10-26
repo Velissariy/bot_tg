@@ -1,79 +1,51 @@
 <?php
 
+namespace tests;
+
 use App\Application;
 use App\Commands\SaveEventCommand;
 use PHPUnit\Framework\TestCase;
 
-class SaveEventCommandTest extends TestCase
-{
-    /**
-     * @dataProvider isNeedHelpDataProvider
-     */
-    public function testIsNeedHelp(array $options, bool $isNeedHelp)
-    {
-        $saveEventCommand = new SaveEventCommand(new Application(dirname(__DIR__)));
+class SaveEventCommandTest extends TestCase {
+  /**
+   * @dataProvider isNeedHelpDataProvider
+   */
+  public function testIsNeedHelp(array $options, bool $expected) {
+    $handleSaveEventsCommand = new SaveEventCommand(new Application(dirname(__DIR__)));
+    $result = $handleSaveEventsCommand->isNeedHelp($options);
+    self::assertEquals($expected, $result);
+  }
 
-        $result = $saveEventCommand->isNeedHelp($options);
-
-        self::assertEquals($result, $isNeedHelp);
-    }
-
-    public function isNeedHelpDataProvider(): array
-    {
-        return [
-            [
-                [
-                    'name' => "some-name",
-                    'text' => "some-text",
-                    'receiver' => "some-reciver",
-                    'cron' => "some-cron",
-                    // 'help',
-                    //  'h'
-                ],
-                false
-            ],
-            [
-                [
-                    'name' => "some-name",
-                    'text' => "some-text",
-                    'receiver' => "some-reciver",
-                    'cron' => "some-cron",
-                    'help' => 'some-help',
-                    'h' => null
-                ],
-                true
-            ],
-            [
-                [
-                    'name' => "some-name",
-                    'text' => "some-text",
-                    'receiver' => "some-reciver",
-                    'cron' => "some-cron",
-                    'help' => null,
-                    'h' => 'some-h'
-                ],
-                true
-            ],
-            [
-                [
-                    'name' => "some-name",
-                    'text' => "some-text",
-                    'receiver' => "some-reciver",
-                    'cron' => null
-                ],
-                true
-            ],
-            [
-                [
-                    'name' => "some-name",
-                    'text' => "some-text",
-                    'receiver' => null,
-                    'cron' => "some-cron",
-                    // 'help',
-                    //  'h'
-                ],
-                true
-            ],
-        ];
-    }
+  public function isNeedHelpDataProvider() {
+    return [
+      'missing name' => [
+        'options' => ['text' => 'Some text', 'receiver' => 'User', 'cron' => '*/5 * * * *'],
+        'expected' => true,
+      ],
+      'missing text' => [
+        'options' => ['name' => 'Task', 'receiver' => 'User', 'cron' => '*/5 * * * *'],
+        'expected' => true,
+      ],
+      'missing receiver' => [
+        'options' => ['name' => 'Task', 'text' => 'Some text', 'cron' => '*/5 * * * *'],
+        'expected' => true,
+      ],
+      'missing cron' => [
+        'options' => ['name' => 'Task', 'text' => 'Some text', 'receiver' => 'User'],
+        'expected' => true,
+      ],
+      'help option set' => [
+        'options' => ['name' => 'Task', 'text' => 'Some text', 'receiver' => 'User', 'cron' => '*/5 * * * *', 'help' => true],
+        'expected' => true,
+      ],
+      'short help option set' => [
+        'options' => ['name' => 'Task', 'text' => 'Some text', 'receiver' => 'User', 'cron' => '*/5 * * * *', 'h' => true],
+        'expected' => true,
+      ],
+      'all options present' => [
+        'options' => ['name' => 'Task', 'text' => 'Some text', 'receiver' => 'User', 'cron' => '*/5 * * * *'],
+        'expected' => false,
+      ],
+    ];
+  }
 }
