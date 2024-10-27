@@ -1,5 +1,6 @@
 {
   "name": "rek771/reminder-tg-bot",
+  "version": "1.0.0",
   "description": "Бот, который напоминает в телегу о важных событиях",
   "require": {
     "php": ">=8.0",
@@ -8,10 +9,16 @@
     "ext-pcntl": "*",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
+    "php-amqplib/php-amqplib": "^3.0",
+    "predis/predis": "^2.2",
+    "psr/simple-cache": "^3.0",
+    "telegram-bot/api": "^2.5",
     "vlucas/phpdotenv": "^5.5"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.5"
+    "mockery/mockery": "^1.6",
+    "phpunit/php-code-coverage": "^9.2",
+    "phpunit/phpunit": "^9.6"
   },
   "autoload": {
     "psr-4": {

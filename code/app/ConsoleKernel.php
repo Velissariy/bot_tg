@@ -22,10 +22,7 @@ class ConsoleKernel
         $this->app = $app;
     }
 
-    /**
-     * @throws CommandNotFound
-     */
-    public function handle(): void
+    public function handle()
     {
         $shortopts = 'c:';
 

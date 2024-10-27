@@ -7,6 +7,9 @@ use App\Commands\HandleEventsCommand;
 use PHPUnit\Framework\TestCase;
 
 
+/**
+ * @covers \App\Commands\HandleEventsCommand
+ */
 class HandleEventsCommandTest extends TestCase {
   /**
    * @dataProvider eventProvider

@@ -6,6 +6,9 @@ use App\Application;
 use App\Commands\SaveEventCommand;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \App\Commands\SaveEventCommand
+ */
 class SaveEventCommandTest extends TestCase {
   /**
    * @dataProvider isNeedHelpDataProvider

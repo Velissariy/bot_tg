@@ -6,6 +6,9 @@ use App\Application;
 use App\Commands\HandleEventsDaemonCommand;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \App\Commands\HandleEventsDaemonCommand
+ */
 class HandleEventsDaemonCommandTest extends TestCase {
   public function testGetCurrentTime() {
     $handleEventsDaemonCommand = new HandleEventsDaemonCommand(new Application(dirname(__DIR__)));
